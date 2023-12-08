@@ -8,7 +8,6 @@ Welcome to Natours! This is a web application for users to explore and register 
 - [Usage](#usage)
 - [Dependencies](#dependencies)
 - [Configuration](#configuration)
-- [Contributing](#contributing)
 - [License](#license)
 
 ## Features
