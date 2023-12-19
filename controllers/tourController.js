@@ -2,28 +2,60 @@ const Tour = require('./../models/tourModel')
 
 //const tours = JSON.parse(fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)) this is for testing 
 
+exports.aliasTopTours = (req, res, next) => {
+    req.query.limit = '5'
+    req.query.sort = '-ratingAverage,price'
+    req.query.fields = 'name,price,ratingAverage,summary,difficulty'
+    next();
+}
 
 exports.getAllTours = async (req, res) => {
     try {
+        console.log(req.query);
         //build the query
-        const queryObj = {...req.query}
-        const excludedFields = ['page' , 'sort' , 'limit' , 'fields'];
+        // 1a) filterimg 
+        const queryObj = { ...req.query }
+        const excludedFields = ['page', 'sort', 'limit', 'fields'];
         excludedFields.forEach(el => delete queryObj[el])
 
-        console.log(req.query , queryObj);
+        //1b) Advance filterng 
+        let queryStr = JSON.stringify(queryObj)
+        queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, match => `$${match}`)
 
-        //find will return an array of these document and then convert them to java script objects 
-        const query = await Tour.find(queryObj)
+        let query = Tour.find(JSON.parse(queryStr))
 
-        // const query = await Tour.find()
-        //   .where('duration')
-        //   .equals(5)
-        //   .where('difficulty')
-        //   .equals('easy')
+        //2)Sorting 
+        if (req.query.sort) {
+            const sortBy = req.query.sort.split(',').join(' ')
+            query = query.sort(sortBy)
+            //sort('price ratingsAverage')
+        } else {
+            query = query.sort('-createdAt')
+        }
+
+        //3) Field limiting
+        if (req.query.fields) {
+            const fields = req.query.fields.split(',').join(' ')
+            query = query.select(fields)
+        } else {
+            query = query.select('-__v')
+        }
+        //4) Pagination 
+        const page = req.query.page * 1 || 1 // this is for making default value
+        const limit = req.query.limit * 1 || 100 //the 1 is to convert the string to number
+        const skip = (page - 1) * limit
+
+        //page=2&limit=10, 1-10 => page1 , 11-20 => page2
+        query = query.skip(skip).limit(limit)
+
+        if (req.query.page) {
+            const numTours = await Tour.countDocuments();
+            if (skip >= numTours) throw new Error(`This page dont exist `)
+            // we threw an error because we are inttry catch and the error will go to the catch
+        }
 
         //execute the query
-
-        const tours = await query 
+        const tours = await query
 
         //send response 
 

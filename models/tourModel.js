@@ -48,9 +48,10 @@ const tourSchema = new mongoose.Schema({
       required : [true , ' A tour must have an image ']
     }, 
     images : [String],
-    createAt:{
+    createdAt:{
       type : Date ,
-      default:Date.now()
+      default:Date.now(),
+      select : false
     }, 
     startDates : [Date]
   })
