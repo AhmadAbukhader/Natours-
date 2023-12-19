@@ -30,11 +30,11 @@ Welcome to Natours! This is a web application for users to explore and register 
 
 ###### Start the application: 
 * the development application 
-```bash 
+```terminal 
 npm run start:dev    
 ```
 * the production application
-```bash 
+```terminal 
 npm run start:prod    
 ```
 
