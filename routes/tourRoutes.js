@@ -6,8 +6,15 @@ const router = express.Router()
 //parameter middleware 
 
 router
+    .route('/monthly-plan/:year')
+    .get(tourController.getMonthlyPlan)
+router
     .route('/top-5-cheap')
     .get(tourController.aliasTopTours, tourController.getAllTours)
+
+router
+    .route('/tour-stats')
+    .get(tourController.getTourstats)
 
 router
     .route('/')
